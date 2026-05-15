@@ -1,27 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-
-  // Prevents background scrolling when the mobile menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
 
   const navLinks = [
     { name: "HOME", path: "/" },
@@ -38,36 +25,30 @@ export default function Navbar() {
       transition={{ duration: 0.8, ease: "easeOut" }}
       className="fixed top-0 left-0 w-full z-100 backdrop-blur-md bg-white/5 border-b border-white/10"
     >
-      {/* Reduced horizontal padding on mobile (px-4 instead of px-6) for extra room */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 h-24 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
         
-        {/* LOGO SECTION - Added max-w-[75%] to prevent pushing the menu button off screen */}
-        <Link href="/" className="flex items-center gap-2 md:gap-4 group z-110 max-w-[75%] sm:max-w-[80%]">
+        {/* LOGO SECTION (KEPT AS IS) */}
+        <Link href="/" className="flex items-center gap-4 group z-110">
           <motion.div 
             animate={{ rotateY: 360 }}
             transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
             style={{ transformStyle: "preserve-3d" }}
-            // Shrunk the mobile logo slightly (w-10 h-10) and added shrink-0 so it never gets squished
-            className="relative w-10 h-10 md:w-16 md:h-16 overflow-hidden rounded-full border border-white/20 group-hover:border-[#22c55e] transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(34,197,94,0.6)] shrink-0"
+            className="relative w-12 h-12 md:w-16 md:h-16 overflow-hidden rounded-full border border-white/20 group-hover:border-[#22c55e] transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(34,197,94,0.6)] shrink-0"
           >
             <Image src="/logo.svg" alt="Logo" fill className="object-cover brightness-0 invert p-1" />
           </motion.div>
-          
-          {/* Text Container - Added overflow-hidden to allow text truncation */}
-          <div className="flex flex-col justify-center overflow-hidden">
-            {/* Added truncate so long text adds '...' on tiny screens instead of breaking the layout */}
-            <span className="font-black tracking-widest text-[11px] sm:text-xs md:text-lg text-[#22c55e] drop-shadow-md leading-tight truncate md:whitespace-normal">
+          <div className="flex flex-col justify-center">
+            <span className="font-black tracking-widest text-sm md:text-lg text-[#22c55e] drop-shadow-md leading-tight">
               FULL CIRCLE EVENTS (PVT) LTD.
             </span>
-            {/* Hid the sub-text entirely on ultra-small screens to save space */}
-            <span className="hidden sm:block text-white text-[8px] md:text-[10px] tracking-widest uppercase opacity-90 mt-0.5 truncate">
+            <span className="text-white text-[8px] md:text-[10px] tracking-widest uppercase opacity-90 mt-0.5">
               Professional Event Management Company
             </span>
           </div>
         </Link>
 
-        {/* DESKTOP LINKS */}
-        <div className="hidden lg:flex items-center gap-8 text-sm font-bold tracking-widest z-110">
+        {/* DESKTOP LINKS (KEPT AS IS) */}
+        <div className="hidden lg:flex items-center gap-8 text-sm font-bold tracking-widest">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
@@ -79,38 +60,54 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* MOBILE TOGGLE BUTTON - Added shrink-0 to guarantee it always has space */}
+        {/* MOBILE HAMBURGER BUTTON (NEW SVG LOGIC) */}
         <button 
-          className="lg:hidden z-110 text-white p-2 shrink-0 focus:outline-none"
+          className="lg:hidden text-white p-2 z-110 focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle Menu"
         >
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
+          <svg 
+            className="w-8 h-8" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            {isOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
         </button>
+      </div>
 
-        {/* MOBILE MENU OVERLAY */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-0 bg-[#050505]/80 backdrop-blur-xl z-105 flex flex-col items-center justify-center gap-8 lg:hidden"
-            >
+      {/* MOBILE DROPDOWN MENU (NEW VERTICAL ANIMATION LOGIC) */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="absolute top-24 left-0 w-full bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 lg:hidden z-50"
+          >
+            <div className="flex flex-col px-8 py-10 space-y-8">
               {navLinks.map((link) => (
                 <Link 
                   key={link.name} 
-                  href={link.path} 
+                  href={link.path}
                   onClick={() => setIsOpen(false)}
-                  className={`text-3xl font-black tracking-widest transition-colors ${pathname === link.path ? "text-[#22c55e]" : "text-white hover:text-[#22c55e]"}`}
+                  className={`text-2xl font-black tracking-widest transition-colors ${
+                    pathname === link.path ? "text-[#22c55e]" : "text-white hover:text-[#22c55e]"
+                  }`}
                 >
                   {link.name}
                 </Link>
               ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }
