@@ -91,13 +91,15 @@ export default function Navbar() {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="absolute top-24 left-0 w-full bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 lg:hidden z-50"
           >
-            <div className="flex flex-col px-8 py-10 space-y-8">
+            {/* Reduced from py-10 space-y-8 to py-8 space-y-6 for a tighter layout */}
+            <div className="flex flex-col px-8 py-8 space-y-6">
               {navLinks.map((link) => (
                 <Link 
                   key={link.name} 
                   href={link.path}
                   onClick={() => setIsOpen(false)}
-                  className={`text-2xl font-black tracking-widest transition-colors ${
+                  // Changed from text-2xl to text-xl for a sleeker mobile look
+                  className={`text-xl font-black tracking-widest transition-colors ${
                     pathname === link.path ? "text-[#22c55e]" : "text-white hover:text-[#22c55e]"
                   }`}
                 >
