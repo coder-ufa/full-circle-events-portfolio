@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,18 +10,6 @@ import { Menu, X } from "lucide-react";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-
-  // Prevent background scrolling when the mobile menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
 
   const navLinks = [
     { name: "HOME", path: "/" },
@@ -36,12 +24,10 @@ export default function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      // Updated Tailwind V4 syntax (z-100 instead of z-[100])
+      // 1. Z-100 LOCK: Updated to Tailwind V4 syntax (z-100) to keep it above the canvas
       className="fixed top-0 left-0 w-full z-100 backdrop-blur-md bg-white/5 border-b border-white/10"
     >
       <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
-        
-        {/* LOGO SECTION */}
         <Link href="/" className="flex items-center gap-4 group z-110">
           <motion.div 
             animate={{ rotateY: 360 }}
@@ -61,7 +47,7 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* DESKTOP LINKS */}
+        {/* Desktop Links */}
         <div className="hidden lg:flex items-center gap-8 text-sm font-bold tracking-widest z-110">
           {navLinks.map((link) => (
             <Link 
@@ -74,7 +60,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* MOBILE TOGGLE BUTTON */}
+        {/* Mobile Toggle Button */}
         <button 
           className="lg:hidden z-110 text-white p-2 focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
@@ -82,50 +68,28 @@ export default function Navbar() {
           {isOpen ? <X size={32} /> : <Menu size={32} />}
         </button>
 
-        {/* PREMIUM MOBILE MENU OVERLAY */}
+        {/* Mobile Menu Overlay */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              // Replaced solid black with a sleek blurred glass effect
-              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-              animate={{ opacity: 1, backdropFilter: "blur(16px)" }}
-              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-              transition={{ duration: 0.4 }}
-              className="fixed inset-0 bg-[#050505]/95 z-105 flex flex-col items-center justify-center lg:hidden"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              // 2. GLASS DROPDOWN: Swapped solid black for bg opacity + backdrop-blur-xl
+              className="fixed inset-0 bg-[#050505]/80 backdrop-blur-xl z-105 flex flex-col items-center justify-center gap-8 lg:hidden"
             >
-              {/* Container that handles the staggered cascading animation */}
-              <motion.div 
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { 
-                    opacity: 1, 
-                    transition: { staggerChildren: 0.1, delayChildren: 0.2 } 
-                  }
-                }}
-                className="flex flex-col items-center gap-8"
-              >
-                {navLinks.map((link) => (
-                  <motion.div
-                    key={link.name}
-                    // Individual link animation (slides up gently)
-                    variants={{
-                      hidden: { y: 20, opacity: 0 },
-                      visible: { y: 0, opacity: 1 },
-                    }}
-                  >
-                    <Link 
-                      href={link.path} 
-                      onClick={() => setIsOpen(false)}
-                      className={`text-3xl font-black tracking-widest hover:text-[#22c55e] transition-colors ${pathname === link.path ? "text-[#22c55e]" : "text-white"}`}
-                    >
-                      {link.name}
-                    </Link>
-                  </motion.div>
-                ))}
-              </motion.div>
+              {navLinks.map((link) => (
+                <Link 
+                  key={link.name} 
+                  href={link.path} 
+                  // 3. AUTO-CLOSE: Instantly closes the menu when a link is clicked
+                  onClick={() => setIsOpen(false)}
+                  className={`text-3xl font-black tracking-widest transition-colors ${pathname === link.path ? "text-[#22c55e]" : "text-white hover:text-[#22c55e]"}`}
+                >
+                  {link.name}
+                </Link>
+              ))}
             </motion.div>
           )}
         </AnimatePresence>
